@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+
+# Experiment outputs
+wandb/
+outputs/
+logs/
+videos/
+*.mp4
+
+# Model checkpoints (download via scripts/download_*.sh)
+checkpoints/
+*.safetensors
+*.pt
+*.ckpt
+
+# Local config
+.envrc
+.env
+.DS_Store

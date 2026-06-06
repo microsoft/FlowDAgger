@@ -1,0 +1,44 @@
+# FlowDAgger pi0.5 (MetaWorld) - JAX stack.
+#
+# openpi is a git submodule at flowdagger_pi05/openpi. Install it FIRST, then
+# install this file, so these pins win over openpi's older transitive deps:
+#     pip install -e flowdagger_pi05/openpi
+#     pip install -r flowdagger_pi05/requirements.txt
+
+# --- JAX / Flax stack (GPU). jax[cuda12] pulls a matching cuDNN/cuBLAS. ---
+jax[cuda12]==0.8.0
+flax==0.10.2
+optax==0.2.4
+ml_collections==1.0.0
+ml_dtypes==0.5.1
+orbax-checkpoint==0.11.20
+einops==0.8.1
+distrax==0.1.7
+
+# --- TensorFlow (used by the openpi data pipeline; GPU disabled at runtime) ---
+tensorflow==2.19.0
+tf_keras==2.19.0
+
+# --- openpi imports pytest at module load ---
+pytest
+
+# --- Envs ---
+gym==0.26.2                       # classic gym (gym.spaces) used for buffer spaces
+gymnasium==1.2.1                  # MetaWorld V3 needs >=1.1; pinned so openpi cannot downgrade it
+metaworld @ git+https://github.com/Farama-Foundation/Metaworld.git@3.0.0
+mujoco==3.3.0                     # MetaWorld 3.0.0 physics backend
+
+# --- Logging / media / IO ---
+wandb[media]==0.19.9
+opencv-python==4.11.0.86
+imageio==2.37.0
+pillow==12.2.0
+matplotlib==3.9.3
+
+# --- Numerics / misc ---
+scipy==1.15.2
+numpy
+tqdm
+python-dateutil
+huggingface_hub                   # fetches the pi0.5 checkpoint on first run
+pynput                            # optional: 's'-to-skip an eval rollout
