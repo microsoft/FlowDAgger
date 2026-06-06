@@ -1,0 +1,3 @@
+[submodule "flowdagger_pi05/openpi"]
+	path = flowdagger_pi05/openpi
+	url = https://github.com/mmurray/openpi.git
