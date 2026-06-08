@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="FlowDAgger: human-in-the-loop adaptation of frozen flow-matching and diffusion robot policies via action inversion in noise space.">
+  <meta name="keywords" content="FlowDAgger, flow matching, diffusion policy, DAgger, human-in-the-loop, robot learning">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FlowDAgger: Human-in-the-Loop Adaptation of Generative Robot Policies in Latent Space</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-2 publication-title">FlowDAgger: Human-in-the-Loop Adaptation of Generative Robot Policies in Latent Space</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Anonymous Authors</span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Under review at CoRL 2026</span>
+          </div>
+
+          <div class="publication-links">
+            <span class="button is-rounded is-coming">
+              <span class="icon"><i class="fas fa-file-pdf"></i></span>
+              <span>Paper (coming soon)</span>
+            </span>
+            <span class="button is-rounded is-coming">
+              <span class="icon"><i class="fab fa-github"></i></span>
+              <span>Code (coming soon)</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified is-size-5">
+          <p>
+            Pretrained generative robot policies based on flow matching and diffusion have
+            achieved impressive results across a wide range of manipulation tasks. Yet real-world
+            deployments routinely expose failure modes outside the pretraining distribution.
+            Closing these gaps typically requires large-scale data collection or online
+            reinforcement learning on physical hardware, which is impractical for rapid and safe
+            adaptation.
+            We present <span class="methodname">FlowDAgger</span>, a sample- and compute-efficient
+            method for adapting frozen generative robot policies from human interventions in
+            latent space. Our key idea is action inversion: each human expert action is mapped to
+            the noise that would have produced it under the frozen base policy, using reverse-time
+            integration followed by local refinement. The resulting inverted noise provides
+            supervision for a lightweight latent policy that steers the base model at deployment time,
+            enabling rapid skill acquisition while preserving its behavioral priors.
+            We evaluate <span class="methodname">FlowDAgger</span> in simulation and on real-world
+            bimanual and single-arm manipulation, adapting both action-head VLAs and world-action
+            models from a handful of interventions. <span class="methodname">FlowDAgger</span>
+            outperforms supervised fine-tuning and latent-space RL baselines and preserves
+            pretrained skills on held-out tasks, offering a practical path for adapting robot
+            foundation models in the real world.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <div class="keyideas is-size-5">
+          <p class="keyideas-label">Highlights</p>
+          <ul>
+            <li><strong>Action inversion:</strong> Human corrections are mapped to the noise that would have produced them under the frozen base policy.</li>
+            <li><strong>Noise-space steering:</strong> A small policy learns to steer the frozen base; the base weights are never modified.</li>
+            <li><strong>Sample- and compute-efficient:</strong> Adapts from a handful of interventions, training in the &#8776;8&nbsp;GB the base policy already needs.</li>
+            <li><strong>Across model families:</strong> Works on action-head VLAs (&pi;<sub>0.5</sub>, GR00T&nbsp;N1.7), world-action models (Cosmos-Policy), and vanilla diffusion policies.</li>
+            <li><strong>Preserves the prior:</strong> Keeps pretrained skills that fine-tuning erodes.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full">
+        <h2 class="title is-3">Approach</h2>
+      </div>
+    </div>
+
+    <div class="columns is-centered">
+      <div class="column is-full has-text-centered">
+        <figure class="image">
+          <img src="./static/images/overview.png" alt="FlowDAgger method overview">
+        </figure>
+      </div>
+    </div>
+
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <div class="content has-text-justified is-size-6">
+          <p>
+            <span class="methodname">FlowDAgger</span> adapts a frozen generative policy from a
+            stream of human corrections. A small latent policy <em>&pi;<sup>w</sup></em> proposes a
+            noise vector for each observation, which the frozen base policy
+            <em>&pi;<sub>gp</sub></em> decodes into an action; a human operator overrides that action
+            whenever the behavior is unsatisfactory. The core step, <em>action inversion</em>,
+            recovers the noise vector <em>w</em><sup>*</sup> that reproduces each correction under the
+            frozen base policy (<em>&pi;<sub>gp</sub></em>(<em>s</em>,&nbsp;<em>w</em><sup>*</sup>)
+            &thinsp;&approx;&thinsp; <em>a</em><sup>*</sup>), turning an action-space correction into
+            a target in noise space. The latent policy is then trained by regression onto these
+            (<em>s</em>,&nbsp;<em>w</em><sup>*</sup>) targets. Because the base policy is never
+            fine-tuned, <span class="methodname">FlowDAgger</span> steers it toward the corrected
+            behavior while preserving its pretrained skills.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full">
+        <h2 class="title is-3">Results in Simulation</h2>
+        <p class="is-size-5 has-text-grey">
+          On MetaWorld, <span class="methodname">FlowDAgger</span> reaches higher success rates than
+          supervised fine-tuning, action- and weight-space DAgger, and latent-space RL, from the same
+          handful of corrections and at a fraction of the training memory.
+        </p>
+      </div>
+    </div>
+
+    <!-- Success-rate curves -->
+    <div class="columns is-centered">
+      <div class="column is-full has-text-centered results-figure">
+        <figure class="image">
+          <img src="./static/images/success_rate_metaworld.png" alt="Success rate vs. adaptation episodes on MetaWorld">
+        </figure>
+        <p class="results-caption">
+          Success rate vs. adaptation episodes adapting a frozen &pi;<sub>0.5</sub> on five MetaWorld
+          tasks. <span class="methodname">FlowDAgger</span> (green) climbs fastest and highest, while
+          Residual-DAgger (blue) learns erratically and DSRL (purple) barely moves the base (dashed).
+          Mean over 3 seeds.
+        </p>
+      </div>
+    </div>
+
+    <!-- 12-task comparison table -->
+    <div class="columns is-centered">
+      <div class="column is-full">
+        <div class="table-container">
+          <table class="table is-fullwidth is-narrow is-hoverable results-table">
+            <thead>
+              <tr>
+                <th class="row-name">Task</th>
+                <th>Base</th>
+                <th>SFT</th>
+                <th>LoRA-DAgger</th>
+                <th>Residual-DAgger</th>
+                <th>DSRL</th>
+                <th class="fd"><span class="fd-name">FlowDAgger</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="row-name">Assembly</td><td>0.64</td><td>0.85</td><td>0.81</td><td>0.53</td><td>0.64</td><td class="fd"><strong>0.89</strong></td></tr>
+              <tr><td class="row-name">Bin Picking</td><td>0.56</td><td><strong>0.76</strong></td><td>0.68</td><td>0.63</td><td><strong>0.76</strong></td><td class="fd">0.69</td></tr>
+              <tr><td class="row-name">Box Close</td><td>0.36</td><td><strong>0.70</strong></td><td>0.52</td><td>0.69</td><td>0.48</td><td class="fd">0.59</td></tr>
+              <tr><td class="row-name">Coffee Pull</td><td>0.84</td><td>0.96</td><td>0.68</td><td>0.95</td><td>0.84</td><td class="fd"><strong>1.00</strong></td></tr>
+              <tr><td class="row-name">Dial Turn</td><td>0.20</td><td>0.64</td><td><strong>0.88</strong></td><td>0.59</td><td>0.43</td><td class="fd">0.75</td></tr>
+              <tr><td class="row-name">Door Lock</td><td>0.44</td><td>0.48</td><td>0.76</td><td><strong>0.85</strong></td><td>0.28</td><td class="fd">0.75</td></tr>
+              <tr><td class="row-name">Hammer</td><td>0.40</td><td>0.80</td><td>0.68</td><td>0.56</td><td>0.27</td><td class="fd"><strong>0.84</strong></td></tr>
+              <tr><td class="row-name">Hand Insert</td><td>0.84</td><td>0.88</td><td>0.72</td><td>0.71</td><td>0.92</td><td class="fd"><strong>0.99</strong></td></tr>
+              <tr><td class="row-name">Lever Pull</td><td>0.28</td><td>0.44</td><td>0.52</td><td>0.37</td><td>0.35</td><td class="fd"><strong>0.61</strong></td></tr>
+              <tr><td class="row-name">Pick Place</td><td>0.76</td><td>0.80</td><td>0.68</td><td>0.71</td><td>0.60</td><td class="fd"><strong>0.85</strong></td></tr>
+              <tr><td class="row-name">Soccer</td><td>0.24</td><td>0.36</td><td>0.32</td><td>0.28</td><td>0.33</td><td class="fd"><strong>0.44</strong></td></tr>
+              <tr><td class="row-name">Stick Push</td><td>0.84</td><td>0.84</td><td>0.92</td><td>0.84</td><td>0.73</td><td class="fd"><strong>1.00</strong></td></tr>
+            </tbody>
+            <tfoot>
+              <tr><th class="row-name">Mean SR</th><td>0.53</td><td>0.71</td><td>0.68</td><td>0.64</td><td>0.55</td><td class="fd"><strong>0.78</strong></td></tr>
+              <tr><th class="row-name">&Delta; vs. Base</th><td>&mdash;</td><td>+0.18</td><td>+0.15</td><td>+0.11</td><td>+0.02</td><td class="fd"><strong>+0.25</strong></td></tr>
+            </tfoot>
+          </table>
+        </div>
+        <p class="results-caption">
+          Twelve MetaWorld tasks with &pi;<sub>0.5</sub> as the base policy.
+          <span class="methodname">FlowDAgger</span> gives the largest mean improvement over the
+          frozen base (+0.25) and wins on eight of twelve tasks. Best non-base method per row in
+          <strong>bold</strong>.
+        </p>
+      </div>
+    </div>
+
+    <!-- Compute efficiency + cross-base, side by side -->
+    <div class="columns is-centered" style="margin-top: 1.5rem;">
+      <div class="column is-half has-text-centered results-figure">
+        <h3 class="title is-5">Accurate at a fraction of the memory</h3>
+        <figure class="image" style="max-width: 460px; margin: 0 auto;">
+          <img src="./static/images/compute_efficiency.png" alt="Success rate vs. training VRAM">
+        </figure>
+        <p class="results-caption">
+          Because only a small noise policy is trained, adaptation fits in the &#8776;8&nbsp;GB that
+          deploying &pi;<sub>0.5</sub> already requires &mdash; a single consumer GPU &mdash; while
+          weight-space baselines need far more.
+        </p>
+      </div>
+
+      <div class="column is-half">
+        <h3 class="title is-5 has-text-centered">Adapts across policy families</h3>
+        <div class="table-container">
+          <table class="table is-fullwidth is-narrow is-hoverable results-table">
+            <thead>
+              <tr>
+                <th class="row-name" rowspan="2">Task</th>
+                <th colspan="3">&pi;<sub>0.5</sub> (VLA)</th>
+                <th colspan="3">Cosmos-Policy (WAM)</th>
+              </tr>
+              <tr>
+                <th>Base</th><th class="fd"><span class="fd-name">FD</span></th><th>&Delta;</th>
+                <th>Base</th><th class="fd"><span class="fd-name">FD</span></th><th>&Delta;</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="row-name">Assembly</td><td>0.64</td><td class="fd">0.89</td><td>+0.25</td><td>0.52</td><td class="fd">0.92</td><td>+0.40</td></tr>
+              <tr><td class="row-name">Bin Picking</td><td>0.56</td><td class="fd">0.69</td><td>+0.13</td><td>0.28</td><td class="fd">0.44</td><td>+0.16</td></tr>
+              <tr><td class="row-name">Box Close</td><td>0.36</td><td class="fd">0.59</td><td>+0.23</td><td>0.36</td><td class="fd">0.64</td><td>+0.28</td></tr>
+              <tr><td class="row-name">Dial Turn</td><td>0.20</td><td class="fd">0.75</td><td>+0.55</td><td>0.44</td><td class="fd">0.68</td><td>+0.24</td></tr>
+              <tr><td class="row-name">Hand Insert</td><td>0.84</td><td class="fd">0.99</td><td>+0.15</td><td>0.76</td><td class="fd">0.88</td><td>+0.12</td></tr>
+              <tr><td class="row-name">Lever Pull</td><td>0.28</td><td class="fd">0.61</td><td>+0.33</td><td>0.56</td><td class="fd">0.64</td><td>+0.08</td></tr>
+              <tr><td class="row-name">Stick Push</td><td>0.84</td><td class="fd">1.00</td><td>+0.16</td><td>0.76</td><td class="fd">0.96</td><td>+0.20</td></tr>
+            </tbody>
+            <tfoot>
+              <tr><th class="row-name">Mean</th><td>0.53</td><td class="fd"><strong>0.79</strong></td><td><strong>+0.26</strong></td><td>0.53</td><td class="fd"><strong>0.74</strong></td><td><strong>+0.21</strong></td></tr>
+            </tfoot>
+          </table>
+        </div>
+        <p class="results-caption">
+          The same noise-space procedure adapts an action-head VLA and a world-action model (whose
+          actions are slices of a joint latent), with gains of comparable magnitude on both.
+        </p>
+      </div>
+    </div>
+
+    <!-- Prior preservation -->
+    <div class="columns is-centered" style="margin-top: 1.5rem;">
+      <div class="column is-full">
+        <h3 class="title is-5 has-text-centered">Preserves the base policy's skills</h3>
+        <div class="table-container">
+          <table class="table is-fullwidth is-narrow is-hoverable results-table">
+            <thead>
+              <tr>
+                <th class="row-name" rowspan="2">Method</th>
+                <th>In-dist</th>
+                <th colspan="6">Held-out (saturated) tasks</th>
+              </tr>
+              <tr>
+                <th>Hammer</th>
+                <th>Door</th><th>Drawer</th><th>Faucet</th><th>Plate</th><th>Push</th><th>Mean</th>
+                <th>&Delta; base</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="row-name">Base &pi;<sub>0.5</sub></td><td>0.40</td><td><strong>1.00</strong></td><td><strong>1.00</strong></td><td><strong>0.96</strong></td><td><strong>0.88</strong></td><td><strong>0.96</strong></td><td><strong>0.96</strong></td><td>&mdash;</td></tr>
+              <tr class="fd-row"><td class="row-name fd-name"><strong>FlowDAgger</strong></td><td><strong>0.84</strong></td><td>0.88</td><td><strong>1.00</strong></td><td><strong>0.96</strong></td><td><strong>1.00</strong></td><td>0.56</td><td>0.88</td><td>&minus;0.08</td></tr>
+              <tr><td class="row-name">Residual-DAgger</td><td>0.56</td><td>0.88</td><td>0.68</td><td>0.80</td><td><strong>1.00</strong></td><td>0.08</td><td>0.69</td><td>&minus;0.27</td></tr>
+              <tr><td class="row-name">LoRA-DAgger</td><td>0.68</td><td>0.80</td><td>0.00</td><td>0.36</td><td>0.00</td><td>0.36</td><td>0.30</td><td>&minus;0.66</td></tr>
+              <tr><td class="row-name">SFT (50 demos)</td><td>0.80</td><td>0.12</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.02</td><td>&minus;0.94</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="results-caption">
+          Adapting on Hammer, then evaluating on five tasks the base near-saturates.
+          <span class="methodname">FlowDAgger</span> gains the most in-distribution while holding the
+          held-out tasks closest to the frozen base; weight-space fine-tuning collapses them.
+          <strong>Bold</strong>: held-out scores within base noise or above.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full">
+        <h2 class="title is-3">Real-World Adaptation</h2>
+        <p class="is-size-5 has-text-grey">
+          On real-world bimanual manipulation, <span class="methodname">FlowDAgger</span> adapts a
+          frozen base policy from a handful of human corrections, turning consistent failures into
+          reliable task completion. Clips shown at 3&times; speed.
+        </p>
+      </div>
+    </div>
+
+    <!-- Real-world results table -->
+    <div class="columns is-centered">
+      <div class="column is-three-quarters">
+        <div class="table-container">
+          <table class="table is-fullwidth is-narrow is-hoverable results-table">
+            <thead>
+              <tr>
+                <th class="row-name">Task</th>
+                <th>Base</th>
+                <th>SFT</th>
+                <th class="fd"><span class="fd-name">FlowDAgger</span> (&Delta;)</th>
+                <th>Episodes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="row-name">Block Pick</td><td>0.73</td><td>0.80</td><td class="fd"><strong>0.90</strong> (+0.17)</td><td>5</td></tr>
+              <tr><td class="row-name">Glassware Stacking</td><td>0.26</td><td>0.53</td><td class="fd"><strong>0.76</strong> (+0.50)</td><td>5</td></tr>
+              <tr><td class="row-name">Button Push</td><td>0.60</td><td><strong>0.73</strong></td><td class="fd"><strong>0.73</strong> (+0.13)</td><td>10</td></tr>
+              <tr><td class="row-name">Slider</td><td>0.36</td><td>0.43</td><td class="fd"><strong>0.66</strong> (+0.30)</td><td>5</td></tr>
+              <tr><td class="row-name">Wire Pull</td><td>0.40</td><td>0.53</td><td class="fd"><strong>0.70</strong> (+0.30)</td><td>10</td></tr>
+              <tr><td class="row-name">Jenga Stacking</td><td>0.76</td><td><strong>0.90</strong></td><td class="fd">0.86 (+0.10)</td><td>5</td></tr>
+              <tr><td class="row-name">Toolbox Packing</td><td>0.13</td><td>0.63</td><td class="fd"><strong>0.80</strong> (+0.67)</td><td>10</td></tr>
+              <tr><td class="row-name">Plug Insertion</td><td>0.60</td><td>0.66</td><td class="fd"><strong>0.72</strong> (+0.12)</td><td>20</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="results-caption has-text-centered">
+          Real-hardware success over 30 rollouts on two bimanual platforms (FR3 Duo and Dual UR5e).
+          A handful of corrections (5&ndash;20 episodes) improves the frozen base on every task, with
+          the largest gains where the base is weakest. Best non-base per row in <strong>bold</strong>.
+          Videos for three of these tasks are shown below.
+        </p>
+      </div>
+    </div>
+
+    <!-- TASK: Toolbox -->
+    <h3 class="title is-4 has-text-centered comparison-task-title">Toolbox packing</h3>
+    <p class="has-text-centered comparison-task-sub">
+      The base policy fails to reliably seat tools and close the lid.
+    </p>
+    <div class="columns is-centered">
+      <!-- BEFORE -->
+      <div class="column is-half">
+        <h4 class="title is-5 has-text-centered comparison-col-title">
+          Before: <span class="comparison-sr-before">0.13 SR</span>
+        </h4>
+        <p class="has-text-centered comparison-col-sub">&pi;<sub>0.5</sub> base policy (50 demos)</p>
+
+        <div class="comparison-clip">
+          <video autoplay muted loop playsinline preload="metadata">
+            <source src="./static/videos/before_a.mp4" type="video/mp4">
+          </video>
+          <span class="clip-badge fail"><i class="fas fa-times"></i></span>
+        </div>
+        <div class="comparison-clip">
+          <video autoplay muted loop playsinline preload="metadata">
+            <source src="./static/videos/before_b.mp4" type="video/mp4">
+          </video>
+          <span class="clip-badge fail"><i class="fas fa-times"></i></span>
+        </div>
+      </div>
+
+      <!-- AFTER -->
+      <div class="column is-half comparison-divider">
+        <h4 class="title is-5 has-text-centered comparison-col-title">
+          After: <span class="comparison-sr-after">0.80 SR</span>
+        </h4>
+        <p class="has-text-centered comparison-col-sub">&pi;<sub>0.5</sub> + FlowDAgger (50 demos + 10 corrections)</p>
+
+        <div class="comparison-clip">
+          <video autoplay muted loop playsinline preload="metadata">
+            <source src="./static/videos/after_a.mp4" type="video/mp4">
+          </video>
+          <span class="clip-badge pass"><i class="fas fa-check"></i></span>
+        </div>
+        <div class="comparison-clip">
+          <video autoplay muted loop playsinline preload="metadata">
+            <source src="./static/videos/after_b.mp4" type="video/mp4">
+          </video>
+          <span class="clip-badge pass"><i class="fas fa-check"></i></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TASK: Glassware -->
+    <h3 class="title is-4 has-text-centered comparison-task-title">Glassware placement</h3>
+    <p class="has-text-centered comparison-task-sub">
+      The base policy fails to place both glasses onto their target mats.
+    </p>
+    <div class="columns is-centered">
+      <!-- BEFORE -->
+      <div class="column is-half">
+        <h4 class="title is-5 has-text-centered comparison-col-title">
+          Before: <span class="comparison-sr-before">0.26 SR</span>
+        </h4>
+        <p class="has-text-centered comparison-col-sub">&pi;<sub>0.5</sub> base policy (30 demos)</p>
+
+        <div class="comparison-clip">
+          <video autoplay muted loop playsinline preload="metadata">
+            <source src="./static/videos/glass_before_a.mp4" type="video/mp4">
+          </video>
+          <span class="clip-badge fail"><i class="fas fa-times"></i></span>
+        </div>
+        <div class="comparison-clip">
+          <video autoplay muted loop playsinline preload="metadata">
+            <source src="./static/videos/glass_before_b.mp4" type="video/mp4">
+          </video>
+          <span class="clip-badge fail"><i class="fas fa-times"></i></span>
+        </div>
+      </div>
+
+      <!-- AFTER -->
+      <div class="column is-half comparison-divider">
+        <h4 class="title is-5 has-text-centered comparison-col-title">
+          After: <span class="comparison-sr-after">0.76 SR</span>
+        </h4>
+        <p class="has-text-centered comparison-col-sub">&pi;<sub>0.5</sub> + FlowDAgger (30 demos + 5 correction episodes)</p>
+
+        <div class="comparison-clip">
+          <video autoplay muted loop playsinline preload="metadata">
+            <source src="./static/videos/glass_after_a.mp4" type="video/mp4">
+          </video>
+          <span class="clip-badge pass"><i class="fas fa-check"></i></span>
+        </div>
+        <div class="comparison-clip">
+          <video autoplay muted loop playsinline preload="metadata">
+            <source src="./static/videos/glass_after_b.mp4" type="video/mp4">
+          </video>
+          <span class="clip-badge pass"><i class="fas fa-check"></i></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TASK: Plug -->
+    <h3 class="title is-4 has-text-centered comparison-task-title">Plug insertion</h3>
+    <p class="has-text-centered comparison-task-sub">
+      The base policy fails to insert the plug into the power strip.
+    </p>
+    <div class="columns is-centered">
+      <!-- BEFORE -->
+      <div class="column is-half">
+        <h4 class="title is-5 has-text-centered comparison-col-title">
+          Before: <span class="comparison-sr-before">0.60 SR</span>
+        </h4>
+        <p class="has-text-centered comparison-col-sub">&pi;<sub>0.5</sub> base policy (100 demos)</p>
+
+        <div class="comparison-clip">
+          <video autoplay muted loop playsinline preload="metadata">
+            <source src="./static/videos/plug_before_a.mp4" type="video/mp4">
+          </video>
+          <span class="clip-badge fail"><i class="fas fa-times"></i></span>
+        </div>
+        <div class="comparison-clip">
+          <video autoplay muted loop playsinline preload="metadata">
+            <source src="./static/videos/plug_before_b.mp4" type="video/mp4">
+          </video>
+          <span class="clip-badge fail"><i class="fas fa-times"></i></span>
+        </div>
+      </div>
+
+      <!-- AFTER -->
+      <div class="column is-half comparison-divider">
+        <h4 class="title is-5 has-text-centered comparison-col-title">
+          After: <span class="comparison-sr-after">0.72 SR</span>
+        </h4>
+        <p class="has-text-centered comparison-col-sub">&pi;<sub>0.5</sub> + FlowDAgger (100 demos + 20 correction episodes)</p>
+
+        <div class="comparison-clip">
+          <video autoplay muted loop playsinline preload="metadata">
+            <source src="./static/videos/plug_after_a.mp4" type="video/mp4">
+          </video>
+          <span class="clip-badge pass"><i class="fas fa-check"></i></span>
+        </div>
+        <div class="comparison-clip">
+          <video autoplay muted loop playsinline preload="metadata">
+            <source src="./static/videos/plug_after_b.mp4" type="video/mp4">
+          </video>
+          <span class="clip-badge pass"><i class="fas fa-check"></i></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            Template borrowed from <a
+              href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
