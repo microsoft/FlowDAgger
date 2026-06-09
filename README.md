@@ -2,6 +2,8 @@
 
 Reference implementation for the paper *FlowDAgger: Human-in-the-Loop Adaptation of Generative Robot Policies in Latent Space*.
 
+Project page: https://microsoft.github.io/FlowDAgger
+
 FlowDAgger is latent-space DAgger for flow-matching and diffusion based robot policies. Instead of
 fine-tuning the base policy, it learns a small steering network that predicts
 the initial noise fed to the policy's sampler. Expert corrections are mapped

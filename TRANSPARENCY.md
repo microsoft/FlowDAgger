@@ -20,7 +20,7 @@ the scope of this code release.
 
 Related assets:
 
-- Paper/project website: https://flowdagger.github.io
+- Paper/project website: https://microsoft.github.io/FlowDAgger
 
 ## What Can FlowDAgger Do
 
@@ -39,7 +39,7 @@ generative robot policies. In this reference implementation, it can:
 
 A detailed discussion of FlowDAgger, including how the method was developed and
 tested, can be found in the paper/project materials at:
-https://flowdagger.github.io
+https://microsoft.github.io/FlowDAgger
 
 ## Intended Uses
 
@@ -122,7 +122,7 @@ generative robot policies after a limited number of additional rollouts and
 expert interventions.
 
 A detailed discussion of our evaluation methods and results can be found in the
-paper/project materials at: https://flowdagger.github.io
+paper/project materials at: https://microsoft.github.io/FlowDAgger
 
 ## Evaluation Methods
 
