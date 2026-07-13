@@ -17,8 +17,7 @@ base policy (JAX / openpi), running the MetaWorld assembly task.
 ## How this example works
 
 1. Roll out the base policy. A steering network predicts the sampling noise.
-2. An intervention handler hands control to a scripted expert when the policy
-   stalls or diverges.
+2. An intervention handler hands control to a scripted expert.
 3. Each expert action chunk is inverted through the policy's sampler to recover
    the noise that would have produced it.
 4. The steering network is trained to predict those noise targets (MSE).

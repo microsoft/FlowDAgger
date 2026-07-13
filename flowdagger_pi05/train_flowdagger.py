@@ -228,8 +228,8 @@ def main(variant):
     # --- Steering policy ---
     steering_kwargs = {
         'lr': kwargs.pop('actor_lr', 3e-4),
-        'hidden_dims': kwargs.get('hidden_dims', (128, 128, 128)),
-        'latent_dim': kwargs.get('latent_dim', 50),
+        'hidden_dims': kwargs.get('hidden_dims', (256, 256, 256)),
+        'latent_dim': kwargs.get('latent_dim', 256),
         'dropout_rate': kwargs.get('dropout_rate', None) or None,
         'encoder_type': kwargs.get('encoder_type', 'small'),
         'encoder_norm': kwargs.get('encoder_norm', 'group'),
@@ -378,7 +378,7 @@ def build_parser():
                         help='Override openpi config name (default from task config)')
     parser.add_argument('--openpi_checkpoint', default='', type=str,
                         help='Override openpi checkpoint path (default from task config / METAWORLD_CHECKPOINT)')
-    parser.add_argument('--max_timesteps', default=200, type=int,
+    parser.add_argument('--max_timesteps', default=300, type=int,
                         help='Max env steps per episode (0 = env default)')
     parser.add_argument('--device', default='cuda:0', type=str, help='GPU device for JAX')
 
@@ -447,7 +447,7 @@ def build_parser():
                              'Set 0 for real human-in-the-loop.')
     parser.add_argument('--filter_autonomous', default=0, type=int,
                         help='If 1, only buffer-add EXPERT (intervened) chunks.')
-    parser.add_argument('--dual_buffer', default=0, type=int,
+    parser.add_argument('--dual_buffer', default=1, type=int,
                         help='If 1, keep two parallel success-gated buffers (intervention vs '
                              'autonomous) and mix them at the --dual_buffer_auto_frac ratio.')
     parser.add_argument('--dual_buffer_auto_frac', default=0.5, type=float,
@@ -478,11 +478,11 @@ if __name__ == '__main__':
     # Train kwargs for the steering policy (PixelMultiplexer + encoder).
     train_args_dict = dict(
         actor_lr=3e-4,
-        hidden_dims=(128, 128, 128),
+        hidden_dims=(256, 256, 256),
         cnn_features=(32, 32, 32, 32),
         cnn_strides=(2, 1, 1, 1),
         cnn_padding='VALID',
-        latent_dim=50,
+        latent_dim=256,
         dropout_rate=0.0,
         use_bottleneck=True,
         encoder_type='vlm_pi0',
