@@ -23,8 +23,7 @@ python -m venv .venv && source .venv/bin/activate
 git submodule update --init flowdagger_pi05/openpi
 pip install -e flowdagger_pi05/openpi
 
-# 2. Reproduction JAX/CUDA stack + envs. Installed AFTER openpi so the
-#    release-specific GPU and MetaWorld pins take precedence.
+# 2. Reproduction JAX/CUDA stack + envs. Installed AFTER openpi.
 pip install -r flowdagger_pi05/requirements.txt
 ```
 

@@ -361,8 +361,8 @@ def build_parser():
     parser.add_argument('--log_interval', default=1000, type=int, help='Logging interval.')
     parser.add_argument('--eval_interval', default=500, type=int, help='Eval interval.')
     parser.add_argument('--checkpoint_interval', default=-1, type=int, help='Checkpoint interval.')
-    parser.add_argument('--max_steps', default=2000, type=int,
-                        help='Number of BC steps (100 per episode, so 2000 = 20 episodes).')
+    parser.add_argument('--max_steps', default=4000, type=int,
+                        help='Number of BC steps (100 per episode, so 4000 = 40 episodes).')
     parser.add_argument('--add_states', default=1, type=int, help='Add low-dim state to obs.')
     parser.add_argument('--wandb_project', default='flowdagger', help='wandb project')
     parser.add_argument('--wandb_entity', default='', help='wandb team/entity')
@@ -447,7 +447,7 @@ def build_parser():
                              'Set 0 for real human-in-the-loop.')
     parser.add_argument('--filter_autonomous', default=0, type=int,
                         help='If 1, only buffer-add EXPERT (intervened) chunks.')
-    parser.add_argument('--dual_buffer', default=1, type=int,
+    parser.add_argument('--dual_buffer', default=0, type=int,
                         help='If 1, keep two parallel success-gated buffers (intervention vs '
                              'autonomous) and mix them at the --dual_buffer_auto_frac ratio.')
     parser.add_argument('--dual_buffer_auto_frac', default=0.5, type=float,
