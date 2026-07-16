@@ -75,4 +75,16 @@ $(document).ready(function() {
 
     bulmaSlider.attach();
 
+    $("#copy-bibtex").on("click", function() {
+      var button = $(this);
+      var citation = $("#bibtex-entry").text();
+
+      navigator.clipboard.writeText(citation).then(function() {
+        button.find("span:last").text("Copied");
+        window.setTimeout(function() {
+          button.find("span:last").text("Copy");
+        }, 1600);
+      });
+    });
+
 })

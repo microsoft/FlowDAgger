@@ -174,6 +174,37 @@ body {
   pointer-events: none;
 }
 
+/* Citation */
+.citation-section {
+  padding-top: 1rem;
+}
+.citation-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.citation-heading .title {
+  margin-bottom: 0;
+}
+.citation-heading .button {
+  flex: none;
+}
+#bibtex-entry {
+  margin: 0;
+  padding: 1.25rem;
+  overflow-x: auto;
+  border: 1px solid #dbdbdb;
+  border-radius: 4px;
+  background: #f7f7f7;
+  color: #363636;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 /* Key-ideas callout */
 .keyideas {
   background: #faf3c4;
