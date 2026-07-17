@@ -42,6 +42,17 @@ Then follow [flowdagger_pi05/README.md](flowdagger_pi05/README.md) for install
 and the exact launch command. The pi0.5 checkpoint is fetched from the Hub
 automatically on the first run.
 
+## Citation
+
+```bibtex
+@article{murray2026flowdagger,
+  title={FlowDAgger: Human-in-the-Loop Adaptation of Generative Robot Policies in Latent Space},
+  author={Murray, Michael and Chen, Daphne and Bagaria, Simran and Fortier, Dean and Hellebrekers, Tess and Mullins, Galen and Gajarla, Harshavardhan and Mees, Oier and Cakmak, Maya and Kolobov, Andrey},
+  journal={arXiv preprint arXiv:2607.08877},
+  year={2026}
+}
+```
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
