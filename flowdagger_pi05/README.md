@@ -3,12 +3,13 @@
 FlowDAgger with a **pi0.5** base policy (openpi / JAX), running on the
 **MetaWorld assembly** task.
 
-A small steering actor predicts the per-chunk Gaussian noise that pi0.5 denoises
-into an action chunk. When the policy stalls, a scripted MetaWorld expert takes
-over; its executed actions are inverted through pi0.5's flow-matching sampler to
-recover the noise that would have produced them, and the steering actor is
-trained to predict that noise with a behavior-cloning (MSE) loss. The base
-policy weights are never updated.
+A small steering actor outputs an observation-conditioned initial latent in
+pi0.5's Gaussian-noise input space, which pi0.5 transforms into an action chunk.
+When the policy stalls, a scripted MetaWorld expert takes over; its executed
+actions are inverted through pi0.5's flow-matching sampler to estimate the
+initial latents that would have produced them, and the steering actor is trained
+to match those latent targets with a behavior-cloning (MSE) loss. The base policy
+weights are never updated.
 
 
 ## Install

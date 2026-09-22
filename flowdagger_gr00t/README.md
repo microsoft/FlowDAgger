@@ -2,14 +2,14 @@
 
 This backend runs FlowDAgger on top of NVIDIA's GR00T N1.7 policy (PyTorch,
 flow-matching action head) for LIBERO manipulation. The base policy weights stay
-frozen; FlowDAgger trains a small MLP noise policy that predicts the initial
-noise fed to the flow sampler, supervised by inverting scripted-expert action
-chunks back into noise space.
+frozen; FlowDAgger trains a small MLP steering policy that outputs an
+observation-conditioned initial latent for the flow sampler. Supervision comes
+from inverting scripted-expert action chunks to estimate the corresponding
+initial latents.
 
-The proven configuration is LIBERO-90 task 57 (cream cheese to tray). The
+The example is done on LIBERO-90 task 57 (cream cheese to tray). The
 checkpoint used is the libero_10 release, which is zero-shot on libero_90 tasks,
-so task 57 is a genuine out-of-the-box generalization target that FlowDAgger
-improves.
+so task 57 is a genuine out-of-the-box generalization target.
 
 ## External dependencies
 
@@ -90,24 +90,6 @@ export GROOT_CKPT=~/checkpoints/GR00T-N1.7-LIBERO/libero_10
 python train_groot_flowdagger.py --task_id 57 --episodes 20 --eval_episodes 25
 ```
 
-Fuller form with the defaults made explicit:
-
-```
-python train_groot_flowdagger.py \
-    --suite libero_90 \
-    --task_id 57 \
-    --episodes 20 \
-    --seed_expert_episodes 10 \
-    --bc_steps_per_episode 100 \
-    --bc_batch_size 64 \
-    --lr 1e-4 \
-    --intervention_probability 1.0 \
-    --expert_position_gain 5 \
-    --inverter_fp_per_step 10 \
-    --replan_steps 8 \
-    --eval_interval 10 \
-    --eval_episodes 25
-```
 
 Sanity-check the frozen base policy with the eval scaffold:
 
@@ -115,14 +97,9 @@ Sanity-check the frozen base policy with the eval scaffold:
 python eval_libero_groot.py --suite libero_90 --task_id 57 --episodes 25
 ```
 
-The verified recipe uses expert control for every collected chunk
-(`--intervention_probability 1.0`). Lower values independently mix learned
-policy chunks into online collection.
-
 Reference result on LIBERO-90 task 57: the frozen `libero_10` policy is about
 0.6 success rate zero-shot at N=25, and this FlowDAgger recipe reaches roughly
-0.84-0.96 over 20 online episodes. In our reproduction, gain 5 reached 0.76 at
-episode 10 and 0.96 at episode 20; gain 20 reached only 0.48 at best.
+0.84-0.96 over 20 online episodes.
 
 ## Files
 

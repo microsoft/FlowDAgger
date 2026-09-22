@@ -8,7 +8,7 @@ Framework-agnostic pieces reused by the FlowDAgger backends.
 - `task_configs.py` the task registry consumed by the trainers.
 - `intervention_handler.py` decides when the expert takes over during a rollout
   (beta-decay schedule or action-disagreement modes) and, when an inverter and
-  action converter are supplied, logs the inverted noise targets.
+  action converter are supplied, logs the inverted initial-latent targets.
 
 Import these as a package from a backend, with the repo root on `sys.path`:
 
