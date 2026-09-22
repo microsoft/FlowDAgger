@@ -51,8 +51,8 @@ The compatible robosuite and MuJoCo versions are installed by this backend's
    its asset paths:
 
    ```
-   pip install -r requirements.txt
-   pip install --no-deps -e /path/to/LIBERO
+   uv pip install -r requirements.txt
+   uv pip install --no-deps -e /path/to/LIBERO
    python scripts/patch_robosuite_mujoco3.py
    python scripts/configure_libero.py /path/to/LIBERO
    export LIBERO_CONFIG_PATH=~/.libero
