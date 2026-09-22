@@ -3,13 +3,20 @@
 Each entry provides the suite name, task description, and expert_kwargs that
 override expert defaults. To add a task, add a dict entry to TASK_CONFIGS.
 
-Ships one reference task: metaworld_assembly (MetaWorld V3 assembly on the
-pi05_metaworld base).
+Ships reference tasks for the pi0.5 MetaWorld example and the GR00T LIBERO
+example.
 """
 
 import os
 
 TASK_CONFIGS = {
+    # LIBERO-90 task 57 (cream cheese to tray). Used by the GR00T backend.
+    57: {
+        "name": "cream_cheese_to_tray",
+        "suite": "libero_90",
+        "task_id": 57,
+        "expert_kwargs": {},
+    },
     # MetaWorld V3 assembly on pi05_metaworld. Native shape: 4D state, 4D
     # action, single 256x256 corner3 camera.
     "metaworld_assembly": {
@@ -35,7 +42,14 @@ def get_task_config(task_id):
     """Return the config dict for task_id, or raise if it is not registered."""
     if task_id in TASK_CONFIGS:
         return TASK_CONFIGS[task_id]
+    try:
+        int_id = int(task_id)
+        if int_id in TASK_CONFIGS:
+            return TASK_CONFIGS[int_id]
+    except (ValueError, TypeError):
+        pass
     raise KeyError(
-        f"Unknown task_id {task_id!r}. Available: {sorted(TASK_CONFIGS)}. "
+        f"Unknown task_id {task_id!r}. Available: "
+        f"{sorted(map(str, TASK_CONFIGS))}. "
         f"Add an entry to shared/task_configs.py::TASK_CONFIGS."
     )

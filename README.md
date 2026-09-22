@@ -11,8 +11,8 @@ back into that noise space by inverting the policy's sampling ODE, and the
 steering network is trained on the inverted targets with a behavior-cloning
 loss.
 
-This repo is a minimal, self-contained reference implementation on the pi0.5
-base policy (JAX / openpi), running the MetaWorld assembly task.
+This repo contains minimal reference implementations for two base-policy
+backends. Each backend has its own dependencies and runnable example.
 
 ## How this example works
 
@@ -28,19 +28,25 @@ base policy (JAX / openpi), running the MetaWorld assembly task.
 
 ```
 shared/             scripted expert, task registry, intervention handler
-flowdagger_pi05/    the experiment: JAX, pi0.5 base, MetaWorld assembly
+flowdagger_pi05/    JAX, pi0.5 base, MetaWorld assembly
                     (openpi is a git submodule under flowdagger_pi05/openpi)
+flowdagger_gr00t/   PyTorch, GR00T N1.7 base, LIBERO-90 task 57
 ```
 
 ## Getting started
 
+The backends use separate Python environments because their JAX and PyTorch
+stacks have different dependencies. Follow the README for the backend you want
+to run:
+
+- [pi0.5 on MetaWorld assembly](flowdagger_pi05/README.md)
+- [GR00T N1.7 on LIBERO-90 task 57](flowdagger_gr00t/README.md)
+
+The pi0.5 backend uses openpi as a git submodule:
+
 ```
 git submodule update --init flowdagger_pi05/openpi
 ```
-
-Then follow [flowdagger_pi05/README.md](flowdagger_pi05/README.md) for install
-and the exact launch command. The pi0.5 checkpoint is fetched from the Hub
-automatically on the first run.
 
 ## Citation
 

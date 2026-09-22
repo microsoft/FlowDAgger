@@ -1,0 +1,31 @@
+# Python deps for the GR00T N1.7 FlowDAgger backend.
+#
+# Install Isaac-GR00T first so its supported Torch, CUDA, and NumPy versions
+# remain authoritative. These are the LIBERO runtime versions used by the
+# reference run; LIBERO's historical requirements file pins packages that do
+# not support the Python 3.12 environment required by GR00T N1.7.
+
+bddl==3.6.0
+cloudpickle==3.1.2
+easydict==1.13
+gym==0.26.2
+imageio==2.37.3
+mujoco==3.10.0
+pyyaml==6.0.3
+robosuite==1.4.1
+termcolor==3.2.0
+
+# ---------------------------------------------------------------------------
+# External dependencies (NOT pip-installable from here; install separately):
+#
+#   gr00t      NVIDIA Isaac GR00T (the N1.7 base policy + processor).
+#              https://github.com/NVIDIA/Isaac-GR00T
+#              Provides gr00t.policy.gr00t_policy.Gr00tPolicy and
+#              gr00t.data.embodiment_tags.EmbodimentTag. Pulls in torch,
+#              transformers, flash-attn, etc. via its own installer.
+#
+#   LIBERO     The LIBERO benchmark (envs, BDDL task files, init states).
+#              https://github.com/Lifelong-Robot-Learning/LIBERO
+#              Provides libero.libero.benchmark / envs.OffScreenRenderEnv.
+#
+# ---------------------------------------------------------------------------
