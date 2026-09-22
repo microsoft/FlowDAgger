@@ -1,0 +1,54 @@
+cff-version: 1.2.0
+message: "If you use FlowDAgger, please cite the paper below."
+title: "FlowDAgger: Human-in-the-Loop Adaptation of Generative Robot Policies in Latent Space"
+type: software
+authors:
+  - family-names: Murray
+    given-names: Michael
+  - family-names: Chen
+    given-names: Daphne
+  - family-names: Bagaria
+    given-names: Simran
+  - family-names: Fortier
+    given-names: Dean
+  - family-names: Hellebrekers
+    given-names: Tess
+  - family-names: Mullins
+    given-names: Galen
+  - family-names: Gajarla
+    given-names: Harshavardhan
+  - family-names: Mees
+    given-names: Oier
+  - family-names: Cakmak
+    given-names: Maya
+  - family-names: Kolobov
+    given-names: Andrey
+repository-code: "https://github.com/microsoft/FlowDAgger"
+url: "https://microsoft.github.io/FlowDAgger/"
+license: MIT
+preferred-citation:
+  type: conference-paper
+  title: "FlowDAgger: Human-in-the-Loop Adaptation of Generative Robot Policies in Latent Space"
+  authors:
+    - family-names: Murray
+      given-names: Michael
+    - family-names: Chen
+      given-names: Daphne
+    - family-names: Bagaria
+      given-names: Simran
+    - family-names: Fortier
+      given-names: Dean
+    - family-names: Hellebrekers
+      given-names: Tess
+    - family-names: Mullins
+      given-names: Galen
+    - family-names: Gajarla
+      given-names: Harshavardhan
+    - family-names: Mees
+      given-names: Oier
+    - family-names: Cakmak
+      given-names: Maya
+    - family-names: Kolobov
+      given-names: Andrey
+  collection-title: "Proceedings of the 10th Conference on Robot Learning"
+  year: 2026

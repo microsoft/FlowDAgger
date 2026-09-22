@@ -1,6 +1,6 @@
 # FlowDAgger
 
-Reference implementation for the paper *FlowDAgger: Human-in-the-Loop Adaptation of Generative Robot Policies in Latent Space*.
+Official implementation of FlowDAgger: Human-in-the-Loop Adaptation of Generative Robot Policies in Latent Space, published at the 10th Conference on Robot Learning (CoRL 2026).
 
 Project page: https://microsoft.github.io/FlowDAgger
 
